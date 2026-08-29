@@ -498,3 +498,65 @@ export function mapAgentEfficiencyRow(row: TableRow): AgentEfficiencyRow {
     raw: row,
   };
 }
+
+/**
+ * One row of Reports > Standard Reports > "Hourly Call Summary" (/client/reports/standard-reports
+ * ?mode=hourly) — one row per Report Date/Report Hour/SME ID/Campaign Name/Queue Name/Call
+ * Direction combination (NOT one row per agent — SME ID here is the account/admin id that placed
+ * the campaign, not an individual agent). Confirmed live column headers (22 columns, verified by
+ * scrolling the live table all the way right — "ACD Wait Time In Queue" is the true last column,
+ * one past what the accessibility-tree column-header search initially reported).
+ */
+export interface HourlyCallSummaryRow {
+  reportDate: string;
+  reportHour: string;
+  smeId: string;
+  campaignName: string;
+  queueName: string;
+  callDirection: string;
+  totalOfferedCalls: string;
+  totalAnsweredCalls: string;
+  totalUnansweredCalls: string;
+  totalAbandonedCalls: string;
+  totalTalkTime: string;
+  avgTalkTime: string;
+  totalHoldTime: string;
+  maxHoldTime: string;
+  minHoldTime: string;
+  avgHoldTime: string;
+  totalHoldCount: string;
+  longestWaitTime: string;
+  totalWrapTime: string;
+  totalHandlingTime: string;
+  avgHandlingTime: string;
+  acdWaitTimeInQueue: string;
+  raw: TableRow;
+}
+
+export function mapHourlyCallSummaryRow(row: TableRow): HourlyCallSummaryRow {
+  return {
+    reportDate: row['Report Date'] ?? '',
+    reportHour: row['Report Hour'] ?? '',
+    smeId: row['SME ID'] ?? '',
+    campaignName: row['Campaign Name'] ?? '',
+    queueName: row['Queue Name'] ?? '',
+    callDirection: row['Call Direction'] ?? '',
+    totalOfferedCalls: row['Total Offered Calls'] ?? '',
+    totalAnsweredCalls: row['Total Answered Calls'] ?? '',
+    totalUnansweredCalls: row['Total Unanswered Calls'] ?? '',
+    totalAbandonedCalls: row['Total Abandoned Calls'] ?? '',
+    totalTalkTime: row['Total Talk Time'] ?? '',
+    avgTalkTime: row['Average Talk Time'] ?? '',
+    totalHoldTime: row['Total Hold Time'] ?? '',
+    maxHoldTime: row['Max Hold Time'] ?? '',
+    minHoldTime: row['Min Hold Time'] ?? '',
+    avgHoldTime: row['Average Hold Time'] ?? '',
+    totalHoldCount: row['Total Hold Count'] ?? '',
+    longestWaitTime: row['Longest Wait Time'] ?? '',
+    totalWrapTime: row['Total Wrap Time'] ?? '',
+    totalHandlingTime: row['Total Handling Time'] ?? '',
+    avgHandlingTime: row['Average Handling Time'] ?? '',
+    acdWaitTimeInQueue: row['ACD Wait Time In Queue'] ?? '',
+    raw: row,
+  };
+}
