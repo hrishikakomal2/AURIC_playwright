@@ -6,7 +6,7 @@ import { normalizeForCompare, isEmptyValue, durationToSeconds } from './normaliz
  * dialer-mode/call-type metric group in this suite (a single column sum), Transfers Received
  * requires interpreting several fields together (Transfer Status + supporting evidence) rather
  * than trusting one column at face value — see tests/standard-report/agent-performance-report/
- * transfers-received.spec.ts and the brief's "Identifying a Transfer Case" section.
+ * transfers-received-check.spec.ts and the brief's "Identifying a Transfer Case" section.
  *
  * CAVEAT — not yet confirmed live: the actual Transfer Status string values this app renders
  * (e.g. is a connected transfer literally "Successful"? "Connected"? something else?). The

@@ -182,7 +182,7 @@ export interface HourlyAgentPerformanceRow {
   // Inbound call-type metrics — same column-group pattern as the dialer-mode metrics above
   // (though this group is keyed by Call Type, not a dialer/campaign mode), column names as given
   // in the validation brief; not yet independently confirmed live (pending a live-agent pass),
-  // see tests/standard-report/agent-performance-report/inbound.spec.ts.
+  // see tests/standard-report/agent-performance-report/inbound-check.spec.ts.
   inboundReceived: string;
   inboundRingTime: string;
   inboundTalkTime: string;
@@ -199,7 +199,7 @@ export interface HourlyAgentPerformanceRow {
   connectedManualDials: string;
   // Transfers Received metrics — same column-group pattern as the groups above; column names as
   // given in the validation brief; not yet independently confirmed live (pending a live-agent
-  // pass), see tests/standard-report/agent-performance-report/transfers-received.spec.ts.
+  // pass), see tests/standard-report/agent-performance-report/transfers-received-check.spec.ts.
   transfersReceived: string;
   transferRingTime: string;
   transferTalkTime: string;
@@ -317,7 +317,7 @@ export interface CallRecord {
   holdTime: string;
   totalDuration: string;
   // Customer identity — used only for the Transfers Received "record trace" output on mismatch
-  // (see tests/standard-report/agent-performance-report/transfers-received.spec.ts), not for
+  // (see tests/standard-report/agent-performance-report/transfers-received-check.spec.ts), not for
   // filtering/matching.
   customerName: string;
   customerNumber: string;
