@@ -66,6 +66,37 @@ export function compareCounts(aprRaw: string | null | undefined, referenceCount:
   return { matches: aprCount === referenceCount, aprCount, referenceCount, diff: aprCount - referenceCount };
 }
 
+/** Parses a "NN%" / "NN.N%" field (e.g. Occupancy Rate, SLA) into a plain number. Null if unparseable/empty. */
+export function parsePercent(raw: string | null | undefined): number | null {
+  const s = normalizeText(raw);
+  if (isEmptyValue(s)) return null;
+  const match = /^(-?\d+(?:\.\d+)?)\s*%$/.exec(s);
+  if (!match) return null;
+  return Number(match[1]);
+}
+
+export interface PercentCompareResult {
+  matches: boolean;
+  aprPercent: number | null;
+  referencePercent: number | null;
+  diff: number | null;
+}
+
+/**
+ * Compares two "NN%" fields within a tolerance (default 1 percentage point — percentages here are
+ * derived from rounded duration fields on both sides, so a small compounding rounding gap is
+ * expected even when the underlying data agrees).
+ */
+export function comparePercent(aprRaw: string | null | undefined, referenceRaw: string | null | undefined, tolerancePoints = 1): PercentCompareResult {
+  const aprPercent = parsePercent(aprRaw);
+  const referencePercent = parsePercent(referenceRaw);
+  if (aprPercent === null || referencePercent === null) {
+    return { matches: false, aprPercent, referencePercent, diff: null };
+  }
+  const diff = aprPercent - referencePercent;
+  return { matches: Math.abs(diff) <= tolerancePoints, aprPercent, referencePercent, diff };
+}
+
 export interface DurationCompareResult {
   matches: boolean;
   aprSeconds: number | null;
