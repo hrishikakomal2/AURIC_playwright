@@ -467,3 +467,34 @@ export function mapAgentStatusRow(row: TableRow): AgentStatusRow {
     raw: row,
   };
 }
+
+/**
+ * One row of Reports > Standard Reports > "Agent Efficiency Report" (/client/reports/standard-reports
+ * ?mode=agent_efficiency) — one row per agent per date. Confirmed live column headers. Unlike
+ * Agent Activity/Agent Status, this report's Filter dialog has no Agent Name field at all (Date
+ * Range only, verified via the live accessibility tree) — every caller must fetch every agent for
+ * the date range and filter to the one it needs client-side (see AgentEfficiencyPage.ts).
+ */
+export interface AgentEfficiencyRow {
+  agentName: string;
+  date: string;
+  tlSupervisorName: string;
+  avgHandlingTime: string;
+  callVolumeHandled: string;
+  occupancyRate: string;
+  acwTime: string;
+  raw: TableRow;
+}
+
+export function mapAgentEfficiencyRow(row: TableRow): AgentEfficiencyRow {
+  return {
+    agentName: row['Agent Name'] ?? '',
+    date: row['Date'] ?? '',
+    tlSupervisorName: row['TL/Supervisor Name'] ?? '',
+    avgHandlingTime: row['Average Handling Time (AHT)'] ?? '',
+    callVolumeHandled: row['Call Volume Handled'] ?? '',
+    occupancyRate: row['Occupancy Rate'] ?? '',
+    acwTime: row['After Call Work (ACW) Time'] ?? '',
+    raw: row,
+  };
+}
