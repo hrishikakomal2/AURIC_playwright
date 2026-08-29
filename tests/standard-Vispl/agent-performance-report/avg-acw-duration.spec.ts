@@ -7,7 +7,7 @@ import { durationToSeconds, secondsToHms, compareDurations, textsMatch } from '.
 
 /**
  * New Application — Avg ACW Duration validation. Same validation concept as the existing suite's
- * tests/standard-report/agent-performance-report/avg-acw-duration.spec.ts, but running entirely
+ * tests/standard-report/agent-performance-report/duration/specs/avg-acw-duration.spec.ts, but running entirely
  * against this environment's own config/Page Objects — see apr-new-app/README.md "Isolation from
  * the existing suite". "Avg Wrap Up Time" is confirmed live as the matching Insights column on this
  * account too — ACW (After Call Work) and Wrap Up are the same call-center concept under different

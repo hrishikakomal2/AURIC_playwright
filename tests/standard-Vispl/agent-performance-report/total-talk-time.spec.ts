@@ -7,7 +7,7 @@ import { durationToSeconds, secondsToHms, compareDurations, textsMatch } from '.
 
 /**
  * New Application — Total Talk Time validation. Same validation concept as the existing suite's
- * tests/standard-report/agent-performance-report/total-talk-time.spec.ts, but running entirely
+ * tests/standard-report/agent-performance-report/duration/specs/total-talk-time.spec.ts, but running entirely
  * against this environment's own config/Page Objects — see apr-new-app/README.md "Isolation from
  * the existing suite". "Agent Talk Time" (under the "Total" grouped-header column, distinct from
  * "Avg Agent Talk Time") is confirmed live as the matching Insights column on this account too.

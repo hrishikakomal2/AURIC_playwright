@@ -1,5 +1,5 @@
-import { test, expect } from './fixtures';
-import { durationToSeconds, secondsToHms, compareDurations } from '../../../../apr/lib/normalize';
+import { test, expect } from '../fixtures';
+import { durationToSeconds, secondsToHms, compareDurations } from '../../../../../apr/lib/normalize';
 
 /**
  * Total ACW Duration validation: sums every hourly "Total ACW Duration" value for one agent from

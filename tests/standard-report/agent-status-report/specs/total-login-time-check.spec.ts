@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { loginAsAdmin } from '../../../apr/lib/session';
-import { InsightsAprPage } from '../../../apr/pages/InsightsAprPage';
-import { textsMatch, clockToSeconds, secondsToHms, compareDurations } from '../../../apr/lib/normalize';
-import { loadAgentStatusConfig } from './config';
-import { AgentStatusPage } from './AgentStatusPage';
+import { loginAsAdmin } from '../../../../apr/lib/session';
+import { InsightsAprPage } from '../../../../apr/pages/InsightsAprPage';
+import { textsMatch, clockToSeconds, secondsToHms, compareDurations } from '../../../../apr/lib/normalize';
+import { loadAgentStatusConfig } from '../config';
+import { AgentStatusPage } from '../AgentStatusPage';
 
 /**
  * Total Login Time check: for every agent/date shown on Reports > Standard Reports > "Agent

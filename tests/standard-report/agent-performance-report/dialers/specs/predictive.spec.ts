@@ -1,46 +1,46 @@
-import { test, expect } from '../../../../apr/fixtures';
-import { loginAsAdmin } from '../../../../apr/lib/session';
-import { StandardReportsAgentPerformancePage } from '../../../../apr/pages/StandardReportsAgentPerformancePage';
-import { CallsPage } from '../../../../apr/pages/CallsPage';
-import { durationToSeconds, secondsToHms, compareDurations, compareCounts, parseCallTimestamp, textsMatch } from '../../../../apr/lib/normalize';
-import { HourlyAgentPerformanceRow } from '../../../../apr/lib/types';
-import { DIALER_CAMPAIGNS } from './campaigns';
+import { test, expect } from '../../../../../apr/fixtures';
+import { loginAsAdmin } from '../../../../../apr/lib/session';
+import { StandardReportsAgentPerformancePage } from '../../../../../apr/pages/StandardReportsAgentPerformancePage';
+import { CallsPage } from '../../../../../apr/pages/CallsPage';
+import { durationToSeconds, secondsToHms, compareDurations, compareCounts, parseCallTimestamp, textsMatch } from '../../../../../apr/lib/normalize';
+import { HourlyAgentPerformanceRow } from '../../../../../apr/lib/types';
+import { DIALER_CAMPAIGNS } from '../campaigns';
 
 /**
- * Power metrics validation: cross-checks Standard Reports > Agent Performance's Power Dials /
- * Ring Time / ACW / Connected / Talk Time (for one agent, one hour, one campaign + campaign type)
- * against independently-computed totals from the Calls page (/client/calls/merge-calls) — the raw
- * per-call log, used here as the source of truth per the validation brief. Same structure as
- * preview-auto.spec.ts / preview-manual.spec.ts / predictive.spec.ts / progressive.spec.ts, just
- * the Power column group instead — see preview-auto.spec.ts for the fuller design rationale.
+ * Predictive metrics validation: cross-checks Standard Reports > Agent Performance's Predictive
+ * Dials / Ring Time / ACW / Connected / Talk Time (for one agent, one hour, one campaign +
+ * campaign type) against independently-computed totals from the Calls page
+ * (/client/calls/merge-calls) — the raw per-call log, used here as the source of truth per the
+ * validation brief. Same structure as preview-auto.spec.ts / preview-manual.spec.ts, just the
+ * Predictive column group instead — see preview-auto.spec.ts for the fuller design rationale.
  *
  * Agent Name, Date, and Hour come from .env — see APR_AGENT_NAME / APR_START_DATE+APR_END_DATE /
  * APR_START_HOUR (apr/config.ts). Only APR_START_HOUR is used as "the hour" (the task brief's
  * convention: "Start Time: 20, End Time: 21" means the single hour 20:00:00-20:59:59). Campaign
- * Name/Type come from DIALER_CAMPAIGNS.power in ./campaigns.ts instead of .env — a campaign's
- * dialer type is fixed, so this must point at a Power Dialer campaign (a Preview/Predictive/
- * Progressive campaign will not work here); confirmed live dropdown value: "Power Dialer".
+ * Name/Type come from DIALER_CAMPAIGNS.predictive in ./campaigns.ts instead of .env — a
+ * campaign's dialer type is fixed, so this must point at a Predictive Dialer campaign (a Preview
+ * Auto/Manual campaign will not work here); confirmed live dropdown value: "Predictive Dialer".
  * Colocating the campaign per dialer type (rather than one shared APR_CAMPAIGN_NAME/TYPE in
  * .env) is what lets every dialers/*.spec.ts file run together in one `playwright test` pass.
  *
- * CAVEAT — not yet confirmed live: the "Power Dials" etc. column headers (see
+ * CAVEAT — not yet confirmed live: the "Predictive Dials" etc. column headers (see
  * HourlyAgentPerformanceRow in apr/lib/types.ts — the Auto Preview equivalents were confirmed
- * live, Power is assumed to follow the same naming pattern but hasn't been independently
+ * live, Predictive is assumed to follow the same naming pattern but hasn't been independently
  * checked), and everything else preview-auto.spec.ts's caveat already covers (filter dialog
  * controls, Calls page table headers).
  *
  * PASS when every one of the 5 metrics matches (counts exactly, durations within the same 5s
  * tolerance every other duration comparison in this suite uses — see apr/lib/normalize.ts).
  */
-test.describe('APR — Power vs Calls page validation', () => {
-  test('Power Dials/Ring Time/ACW/Connected/Talk Time match the Calls page', async ({ page, aprConfig, aprReport }) => {
+test.describe('APR — Predictive vs Calls page validation', () => {
+  test('Predictive Dials/Ring Time/ACW/Connected/Talk Time match the Calls page', async ({ page, aprConfig, aprReport }) => {
     test.setTimeout(180_000);
 
     if (aprConfig.agent.mode !== 'SPECIFIC') {
-      throw new Error('APR_AGENT_NAME must be a specific agent (not ALL) for the Power validation');
+      throw new Error('APR_AGENT_NAME must be a specific agent (not ALL) for the Predictive validation');
     }
-    const { name: campaignName, type: campaignType } = DIALER_CAMPAIGNS.power;
-    if (!campaignName) throw new Error('DIALER_CAMPAIGNS.power.name is not set — fill it in in tests/standard-report/agent-performance-report/dialers/campaigns.ts');
+    const { name: campaignName, type: campaignType } = DIALER_CAMPAIGNS.predictive;
+    if (!campaignName) throw new Error('DIALER_CAMPAIGNS.predictive.name is not set — fill it in in tests/standard-report/agent-performance-report/dialers/campaigns.ts');
 
     const agentName = aprConfig.agent.name;
     const { startDate, endDate } = aprConfig;
@@ -58,11 +58,11 @@ test.describe('APR — Power vs Calls page validation', () => {
     const sumCount = (pick: (r: HourlyAgentPerformanceRow) => string) =>
       matchingHourlyRows.reduce((acc, r) => acc + (Number(pick(r)) || 0), 0);
 
-    const reportDials = String(sumCount((r) => r.powerDials));
-    const reportRingTime = sumDuration((r) => r.powerRingTime);
-    const reportAcw = sumDuration((r) => r.powerAcw);
-    const reportConnected = String(sumCount((r) => r.connectedPower));
-    const reportTalkTime = sumDuration((r) => r.powerTalkTime);
+    const reportDials = String(sumCount((r) => r.predictiveDials));
+    const reportRingTime = sumDuration((r) => r.predictiveRingTime);
+    const reportAcw = sumDuration((r) => r.predictiveAcw);
+    const reportConnected = String(sumCount((r) => r.connectedPredictive));
+    const reportTalkTime = sumDuration((r) => r.predictiveTalkTime);
 
     // --- Calls page (source of truth) ---
     const callsPage = new CallsPage(page);
@@ -94,11 +94,11 @@ test.describe('APR — Power vs Calls page validation', () => {
     const hourLabel = `${String(hour).padStart(2, '0')}:00-${String(hour).padStart(2, '0')}:59`;
 
     const rows = [
-      { field: 'Power Dials', reportValue: reportDials, calcValue: String(calcDials), matches: dialsCmp.matches, diffLabel: dialsCmp.diff === null ? 'N/A' : String(dialsCmp.diff) },
-      { field: 'Power Ring Time', reportValue: reportRingTime, calcValue: calcRingTime, matches: ringCmp.matches, diffLabel: ringCmp.diffSeconds === null ? 'N/A' : `${ringCmp.diffSeconds}s` },
-      { field: 'Power Talk Time', reportValue: reportTalkTime, calcValue: calcTalkTime, matches: talkCmp.matches, diffLabel: talkCmp.diffSeconds === null ? 'N/A' : `${talkCmp.diffSeconds}s` },
-      { field: 'Power ACW', reportValue: reportAcw, calcValue: calcAcw, matches: acwCmp.matches, diffLabel: acwCmp.diffSeconds === null ? 'N/A' : `${acwCmp.diffSeconds}s` },
-      { field: 'Connected Power', reportValue: reportConnected, calcValue: String(calcConnected), matches: connectedCmp.matches, diffLabel: connectedCmp.diff === null ? 'N/A' : String(connectedCmp.diff) },
+      { field: 'Predictive Dials', reportValue: reportDials, calcValue: String(calcDials), matches: dialsCmp.matches, diffLabel: dialsCmp.diff === null ? 'N/A' : String(dialsCmp.diff) },
+      { field: 'Predictive Ring Time', reportValue: reportRingTime, calcValue: calcRingTime, matches: ringCmp.matches, diffLabel: ringCmp.diffSeconds === null ? 'N/A' : `${ringCmp.diffSeconds}s` },
+      { field: 'Predictive Talk Time', reportValue: reportTalkTime, calcValue: calcTalkTime, matches: talkCmp.matches, diffLabel: talkCmp.diffSeconds === null ? 'N/A' : `${talkCmp.diffSeconds}s` },
+      { field: 'Predictive ACW', reportValue: reportAcw, calcValue: calcAcw, matches: acwCmp.matches, diffLabel: acwCmp.diffSeconds === null ? 'N/A' : `${acwCmp.diffSeconds}s` },
+      { field: 'Connected Predictive', reportValue: reportConnected, calcValue: String(calcConnected), matches: connectedCmp.matches, diffLabel: connectedCmp.diff === null ? 'N/A' : String(connectedCmp.diff) },
     ];
 
     const reportLines = [
@@ -110,14 +110,14 @@ test.describe('APR — Power vs Calls page validation', () => {
       '',
       `Calls inspected on Calls page: ${allCalls.length} total, ${matchingCalls.length} within the hour-${hour} window`,
       '',
-      'Metric           | Standard Report  | Calls Page | Match    | Diff',
+      'Metric                | Standard Report  | Calls Page | Match    | Diff',
       ...rows.map(
-        (r) => `${r.field.padEnd(16)} | ${r.reportValue.padEnd(17)} | ${r.calcValue.padEnd(10)} | ${r.matches ? 'Match' : 'Mismatch'} | ${r.diffLabel}`
+        (r) => `${r.field.padEnd(22)} | ${r.reportValue.padEnd(17)} | ${r.calcValue.padEnd(10)} | ${r.matches ? 'Match' : 'Mismatch'} | ${r.diffLabel}`
       ),
     ];
     const reportText = reportLines.join('\n');
     console.log(reportText);
-    await test.info().attach('power-vs-calls-report', { body: reportText, contentType: 'text/plain' });
+    await test.info().attach('predictive-vs-calls-report', { body: reportText, contentType: 'text/plain' });
 
     for (const r of rows) {
       aprReport.compareField({

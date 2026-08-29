@@ -1,5 +1,5 @@
-import { test, expect } from './fixtures';
-import { durationToSeconds, secondsToHms, compareDurations } from '../../../../apr/lib/normalize';
+import { test, expect } from '../fixtures';
+import { durationToSeconds, secondsToHms, compareDurations } from '../../../../../apr/lib/normalize';
 
 /**
  * Total Ring Time validation: sums every hourly "Total Ring Time" value for one agent from

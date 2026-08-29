@@ -7,7 +7,7 @@ import { durationToSeconds, secondsToHms, compareDurations, textsMatch } from '.
 
 /**
  * New Application — Total ACW Duration validation. Same validation concept as the existing suite's
- * tests/standard-report/agent-performance-report/total-acw-duration.spec.ts, but running entirely
+ * tests/standard-report/agent-performance-report/duration/specs/total-acw-duration.spec.ts, but running entirely
  * against this environment's own config/Page Objects — see apr-new-app/README.md "Isolation from
  * the existing suite". "Total Wrap Up Time" (under the "Total" grouped-header column, distinct
  * from "Avg Wrap Up Time") is confirmed live as the matching Insights column on this account too.

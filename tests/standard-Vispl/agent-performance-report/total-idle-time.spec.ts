@@ -7,7 +7,7 @@ import { durationToSeconds, secondsToHms, compareDurations, textsMatch } from '.
 
 /**
  * New Application — Total Idle Time validation. Same validation concept as the existing suite's
- * tests/standard-report/agent-performance-report/total-ready-duration.spec.ts, but running
+ * tests/standard-report/agent-performance-report/duration/specs/total-ready-duration.spec.ts, but running
  * entirely against this environment's own config/Page Objects — see apr-new-app/README.md
  * "Isolation from the existing suite".
  *

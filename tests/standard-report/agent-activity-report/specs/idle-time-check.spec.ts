@@ -1,15 +1,17 @@
 import { test, expect } from '@playwright/test';
-import { loginAsAdmin } from '../../../apr/lib/session';
-import { InsightsAprPage } from '../../../apr/pages/InsightsAprPage';
-import { textsMatch, compareDurations } from '../../../apr/lib/normalize';
-import { loadAgentActivityConfig } from './config';
-import { AgentActivityPage } from './AgentActivityPage';
+import { loginAsAdmin } from '../../../../apr/lib/session';
+import { InsightsAprPage } from '../../../../apr/pages/InsightsAprPage';
+import { textsMatch, compareDurations } from '../../../../apr/lib/normalize';
+import { loadAgentActivityConfig } from '../config';
+import { AgentActivityPage } from '../AgentActivityPage';
 
 /**
- * Break Time check: for every agent shown on Reports > Standard Reports > "Agent Activity"
- * (/client/reports/standard-reports?mode=agent_activity), cross-checks that report's "Break Time"
- * column against the same agent's "Break Time" on Insights > APR (/client/insights) — same
- * pattern as active-time-check.spec.ts / idle-time-check.spec.ts.
+ * Idle Time check: for every agent shown on Reports > Standard Reports > "Agent Activity"
+ * (/client/reports/standard-reports?mode=agent_activity), cross-checks that report's "Idle Time"
+ * column against the same agent's "Total Waiting Time" on Insights > APR (/client/insights) —
+ * this app's naming convention swaps "Idle Time" (Agent Activity) for "Total Waiting Time"
+ * (Insights APR) for the same underlying metric, same pattern as active-time-check.spec.ts's
+ * "Active Time" comparison.
  *
  * Compared as a duration (compareDurations, 5s tolerance) rather than a clock value — same
  * HH:MM:SS comparison the Agent Performance report's duration checks use (see
@@ -19,10 +21,11 @@ import { AgentActivityPage } from './AgentActivityPage';
  * / START_DATE+END_DATE (blank/unset ⇒ today for both). Login credentials come from the shared
  * root .env (TEST_EMAIL/TEST_PASSWORD) — see ./config.ts for why they aren't duplicated here.
  *
- * PASS when every checked agent's Agent Activity "Break Time" matches Insights APR "Break Time".
+ * PASS when every checked agent's Agent Activity "Idle Time" matches Insights APR "Total Waiting
+ * Time".
  */
-test.describe('Agent Activity — Break Time check', () => {
-  test('Break Time matches Insights APR Break Time', async ({ page }) => {
+test.describe('Agent Activity — Idle Time check', () => {
+  test('Idle Time matches Insights APR Total Waiting Time', async ({ page }) => {
     test.setTimeout(120_000);
 
     const cfg = loadAgentActivityConfig();
@@ -38,13 +41,13 @@ test.describe('Agent Activity — Break Time check', () => {
     const activityRows =
       cfg.agent.mode === 'SPECIFIC' ? allActivityRows.filter((r) => textsMatch(r.agentName, cfg.agent.name)) : allActivityRows;
 
-    // --- Insights > APR (source of truth for Break Time) — fetched once, matched client-side ---
+    // --- Insights > APR (source of truth for Total Waiting Time) — fetched once, matched client-side ---
     const insightsPage = new InsightsAprPage(page);
     await insightsPage.goto();
     await insightsPage.setDateRange(cfg.startDate, cfg.endDate);
     const allInsightsRows = await insightsPage.getAllRows();
 
-    interface BreakTimeResult {
+    interface IdleTimeResult {
       agentName: string;
       date: string;
       activityValue: string;
@@ -54,15 +57,15 @@ test.describe('Agent Activity — Break Time check', () => {
 
     const notFound = '(agent not found on Insights APR)';
 
-    const rows: BreakTimeResult[] = activityRows.map((activity) => {
+    const rows: IdleTimeResult[] = activityRows.map((activity) => {
       const insightsRow = allInsightsRows.find((r) => textsMatch(r.agentName, activity.agentName));
-      const cmp = compareDurations(activity.breakTime, insightsRow?.breakTime);
+      const cmp = compareDurations(activity.idleTime, insightsRow?.totalWaitingTime);
 
       return {
         agentName: activity.agentName,
         date: activity.date,
-        activityValue: activity.breakTime,
-        referenceValue: insightsRow?.breakTime ?? notFound,
+        activityValue: activity.idleTime,
+        referenceValue: insightsRow?.totalWaitingTime ?? notFound,
         matches: insightsRow ? cmp.matches : false,
       };
     });
@@ -75,17 +78,17 @@ test.describe('Agent Activity — Break Time check', () => {
       '',
       `Agents checked: ${rows.length}`,
       '',
-      'Agent Name           | Date       | Agent Activity Break Time | Insights APR Break Time | Match',
+      'Agent Name           | Date       | Agent Activity Idle Time | Insights APR Total Waiting Time | Match',
       ...rows.map(
         (r) =>
-          `${r.agentName.padEnd(21)} | ${r.date.padEnd(10)} | ${r.activityValue.padEnd(25)} | ${r.referenceValue.padEnd(24)} | ${
+          `${r.agentName.padEnd(21)} | ${r.date.padEnd(10)} | ${r.activityValue.padEnd(24)} | ${r.referenceValue.padEnd(32)} | ${
             r.matches ? 'Match' : 'Mismatch'
           }`
       ),
     ];
     const reportText = reportLines.join('\n');
     console.log(reportText);
-    await test.info().attach('break-time-check-report', { body: reportText, contentType: 'text/plain' });
+    await test.info().attach('idle-time-check-report', { body: reportText, contentType: 'text/plain' });
 
     expect(activityRows.length, 'No Agent Activity rows found for the configured agent/date range').toBeGreaterThan(0);
     expect(rows.every((r) => r.matches), reportText).toBe(true);

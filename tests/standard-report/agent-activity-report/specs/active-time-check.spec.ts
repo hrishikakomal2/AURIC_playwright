@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { loginAsAdmin } from '../../../apr/lib/session';
-import { InsightsAprPage } from '../../../apr/pages/InsightsAprPage';
-import { textsMatch, compareDurations } from '../../../apr/lib/normalize';
-import { loadAgentActivityConfig } from './config';
-import { AgentActivityPage } from './AgentActivityPage';
+import { loginAsAdmin } from '../../../../apr/lib/session';
+import { InsightsAprPage } from '../../../../apr/pages/InsightsAprPage';
+import { textsMatch, compareDurations } from '../../../../apr/lib/normalize';
+import { loadAgentActivityConfig } from '../config';
+import { AgentActivityPage } from '../AgentActivityPage';
 
 /**
  * Active Time check: for every agent shown on Reports > Standard Reports > "Agent Activity"

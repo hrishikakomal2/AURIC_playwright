@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { loginAsAdmin } from '../../../apr/lib/session';
-import { UsersPage } from '../../../apr/pages/UsersPage';
-import { InsightsAprPage } from '../../../apr/pages/InsightsAprPage';
-import { textsMatch, compareTimeOfDay, compareClockTime } from '../../../apr/lib/normalize';
-import { loadAgentActivityConfig } from './config';
-import { AgentActivityPage } from './AgentActivityPage';
+import { loginAsAdmin } from '../../../../apr/lib/session';
+import { UsersPage } from '../../../../apr/pages/UsersPage';
+import { InsightsAprPage } from '../../../../apr/pages/InsightsAprPage';
+import { textsMatch, compareTimeOfDay, compareClockTime } from '../../../../apr/lib/normalize';
+import { loadAgentActivityConfig } from '../config';
+import { AgentActivityPage } from '../AgentActivityPage';
 
 /**
  * Field consistency check: for every agent shown on Reports > Standard Reports > "Agent Activity"

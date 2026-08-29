@@ -7,7 +7,7 @@ import { durationToSeconds, secondsToHms, compareDurations, textsMatch } from '.
 
 /**
  * New Application — Avg Handling Time validation. Same validation concept as the existing suite's
- * tests/standard-report/agent-performance-report/avg-handling-time.spec.ts, but running entirely
+ * tests/standard-report/agent-performance-report/duration/specs/avg-handling-time.spec.ts, but running entirely
  * against this environment's own config/Page Objects — see apr-new-app/README.md "Isolation from
  * the existing suite". Both pages use the same "Avg Handling Time" name (just missing the period
  * on Insights) — confirmed live on this account too.

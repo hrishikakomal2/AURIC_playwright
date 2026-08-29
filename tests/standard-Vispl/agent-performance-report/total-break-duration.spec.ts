@@ -7,7 +7,7 @@ import { durationToSeconds, secondsToHms, compareDurations, textsMatch } from '.
 
 /**
  * New Application — Total Break Duration validation. Same validation concept as the existing
- * suite's tests/standard-report/agent-performance-report/total-break-duration.spec.ts, but running
+ * suite's tests/standard-report/agent-performance-report/duration/specs/total-break-duration.spec.ts, but running
  * entirely against this environment's own config/Page Objects — see apr-new-app/README.md
  * "Isolation from the existing suite". "Break Time" is the intended counterpart of the hourly
  * report's "Total Break Duration" here too — confirmed live by column name correspondence (both

@@ -7,7 +7,7 @@ import { durationToSeconds, secondsToHms, compareDurations, textsMatch } from '.
 
 /**
  * New Application — Total Active Duration validation. Same validation concept as the existing
- * suite's tests/standard-report/agent-performance-report/total-active-duration.spec.ts, but
+ * suite's tests/standard-report/agent-performance-report/duration/specs/total-active-duration.spec.ts, but
  * running entirely against this environment's own config/Page Objects — see
  * apr-new-app/README.md "Isolation from the existing suite".
  */

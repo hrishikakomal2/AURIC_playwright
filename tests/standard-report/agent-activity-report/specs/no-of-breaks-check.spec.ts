@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { loginAsAdmin } from '../../../apr/lib/session';
-import { ActivityLogsPage } from '../../../apr/pages/ActivityLogsPage';
-import { textsMatch, compareCounts } from '../../../apr/lib/normalize';
-import { loadAgentActivityConfig } from './config';
-import { AgentActivityPage } from './AgentActivityPage';
+import { loginAsAdmin } from '../../../../apr/lib/session';
+import { ActivityLogsPage } from '../../../../apr/pages/ActivityLogsPage';
+import { textsMatch, compareCounts } from '../../../../apr/lib/normalize';
+import { loadAgentActivityConfig } from '../config';
+import { AgentActivityPage } from '../AgentActivityPage';
 
 /**
  * No. of Breaks Taken check: for every agent/date shown on Reports > Standard Reports > "Agent

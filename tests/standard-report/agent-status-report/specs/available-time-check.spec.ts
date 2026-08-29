@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test';
-import { loginAsAdmin } from '../../../apr/lib/session';
-import { textsMatch, durationToSeconds, secondsToHms, compareDurations } from '../../../apr/lib/normalize';
-import { loadAgentStatusConfig } from './config';
-import { AgentStatusPage } from './AgentStatusPage';
+import { loginAsAdmin } from '../../../../apr/lib/session';
+import { textsMatch, durationToSeconds, secondsToHms, compareDurations } from '../../../../apr/lib/normalize';
+import { loadAgentStatusConfig } from '../config';
+import { AgentStatusPage } from '../AgentStatusPage';
 
 /**
  * Available Time check: for every agent/date shown on Reports > Standard Reports > "Agent Status"

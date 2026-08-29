@@ -7,7 +7,7 @@ import { durationToSeconds, secondsToHms, compareDurations, textsMatch } from '.
 
 /**
  * New Application — Avg Ringing Time validation. Same validation concept as the existing suite's
- * tests/standard-report/agent-performance-report/avg-ringing-time.spec.ts, but running entirely
+ * tests/standard-report/agent-performance-report/duration/specs/avg-ringing-time.spec.ts, but running entirely
  * against this environment's own config/Page Objects — see apr-new-app/README.md "Isolation from
  * the existing suite". "Avg Ringing Duration" is the intended Insights counterpart of the hourly
  * report's "Avg. Ringing Time" here too — confirmed live: both columns exist on this account under

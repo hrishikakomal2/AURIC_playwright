@@ -7,7 +7,7 @@ import { durationToSeconds, secondsToHms, compareDurations, textsMatch } from '.
 
 /**
  * New Application — Avg Talk Time validation. Same validation concept as the existing suite's
- * tests/standard-report/agent-performance-report/avg-talk-time.spec.ts, but running entirely
+ * tests/standard-report/agent-performance-report/duration/specs/avg-talk-time.spec.ts, but running entirely
  * against this environment's own config/Page Objects — see apr-new-app/README.md "Isolation from
  * the existing suite". "Avg Agent Talk Time" is confirmed live as the matching Insights column on
  * this account too.

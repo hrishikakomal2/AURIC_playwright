@@ -1,10 +1,10 @@
-import { test, expect } from '../../../apr/fixtures';
-import { loginAsAdmin } from '../../../apr/lib/session';
-import { StandardReportsAgentPerformancePage } from '../../../apr/pages/StandardReportsAgentPerformancePage';
-import { CallsPage } from '../../../apr/pages/CallsPage';
-import { durationToSeconds, secondsToHms, compareDurations, compareCounts, parseCallTimestamp, textsMatch } from '../../../apr/lib/normalize';
-import { isTransferCase, statusIndicatesConnected, findDataQualityIssue, pickTransferTalkTime } from '../../../apr/lib/transfers';
-import { HourlyAgentPerformanceRow, CallRecord } from '../../../apr/lib/types';
+import { test, expect } from '../../../../apr/fixtures';
+import { loginAsAdmin } from '../../../../apr/lib/session';
+import { StandardReportsAgentPerformancePage } from '../../../../apr/pages/StandardReportsAgentPerformancePage';
+import { CallsPage } from '../../../../apr/pages/CallsPage';
+import { durationToSeconds, secondsToHms, compareDurations, compareCounts, parseCallTimestamp, textsMatch } from '../../../../apr/lib/normalize';
+import { isTransferCase, statusIndicatesConnected, findDataQualityIssue, pickTransferTalkTime } from '../../../../apr/lib/transfers';
+import { HourlyAgentPerformanceRow, CallRecord } from '../../../../apr/lib/types';
 
 /**
  * Transfers Received metrics validation: cross-checks Standard Reports > Agent Performance's

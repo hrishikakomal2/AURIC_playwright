@@ -139,7 +139,7 @@ export interface HourlyAgentPerformanceRow {
   totalTalkTime: string;
   totalAcwDuration: string;
   totalIdleTime: string;
-  // Auto Preview dialer-mode metrics. Confirmed live (see tests/standard-report/agent-performance-report/preview-auto.spec.ts):
+  // Auto Preview dialer-mode metrics. Confirmed live (see tests/standard-report/agent-performance-report/dialers/specs/preview-auto.spec.ts):
   // this report groups metrics by dialer-mode column prefix (Auto Preview / Manual Preview /
   // Predictive / Progressive / Power / Inbound / Callback / Transfer variants).
   autoPreviewDials: string;
@@ -149,7 +149,7 @@ export interface HourlyAgentPerformanceRow {
   autoPreviewTalkTime: string;
   // Manual Preview dialer-mode metrics — same column-group pattern as Auto Preview above, column
   // names as given in the validation brief; not yet independently confirmed live (pending a
-  // live-agent pass), see tests/standard-report/agent-performance-report/preview-manual.spec.ts.
+  // live-agent pass), see tests/standard-report/agent-performance-report/dialers/specs/preview-manual.spec.ts.
   manualPreviewDials: string;
   manualPreviewRingTime: string;
   manualPreviewAcw: string;
@@ -157,7 +157,7 @@ export interface HourlyAgentPerformanceRow {
   manualPreviewTalkTime: string;
   // Predictive dialer-mode metrics — same column-group pattern as Auto Preview above, column
   // names as given in the validation brief; not yet independently confirmed live (pending a
-  // live-agent pass), see tests/standard-report/agent-performance-report/predictive.spec.ts.
+  // live-agent pass), see tests/standard-report/agent-performance-report/dialers/specs/predictive.spec.ts.
   predictiveDials: string;
   predictiveRingTime: string;
   predictiveAcw: string;
@@ -165,7 +165,7 @@ export interface HourlyAgentPerformanceRow {
   predictiveTalkTime: string;
   // Progressive dialer-mode metrics — same column-group pattern as Auto Preview above, column
   // names as given in the validation brief; not yet independently confirmed live (pending a
-  // live-agent pass), see tests/standard-report/agent-performance-report/progressive.spec.ts.
+  // live-agent pass), see tests/standard-report/agent-performance-report/dialers/specs/progressive.spec.ts.
   progressiveDials: string;
   progressiveRingTime: string;
   progressiveAcw: string;
@@ -173,7 +173,7 @@ export interface HourlyAgentPerformanceRow {
   progressiveTalkTime: string;
   // Power dialer-mode metrics — same column-group pattern as Auto Preview above, column names as
   // given in the validation brief; not yet independently confirmed live (pending a live-agent
-  // pass), see tests/standard-report/agent-performance-report/power.spec.ts.
+  // pass), see tests/standard-report/agent-performance-report/dialers/specs/power.spec.ts.
   powerDials: string;
   powerRingTime: string;
   powerAcw: string;
@@ -182,7 +182,7 @@ export interface HourlyAgentPerformanceRow {
   // Inbound call-type metrics — same column-group pattern as the dialer-mode metrics above
   // (though this group is keyed by Call Type, not a dialer/campaign mode), column names as given
   // in the validation brief; not yet independently confirmed live (pending a live-agent pass),
-  // see tests/standard-report/agent-performance-report/inbound-check.spec.ts.
+  // see tests/standard-report/agent-performance-report/specs/inbound-check.spec.ts.
   inboundReceived: string;
   inboundRingTime: string;
   inboundTalkTime: string;
@@ -191,7 +191,7 @@ export interface HourlyAgentPerformanceRow {
   // Manual Dials call-type metrics — same column-group pattern as Inbound above (keyed by Call
   // Type, distinct from the "Manual Preview" dialer-mode group), column names as given in the
   // validation brief; not yet independently confirmed live (pending a live-agent pass), see
-  // tests/standard-report/agent-performance-report/manual-dials.spec.ts.
+  // tests/standard-report/agent-performance-report/dialers/specs/manual-dials.spec.ts.
   manualDials: string;
   manualRingTime: string;
   manualTalkTime: string;
@@ -199,7 +199,7 @@ export interface HourlyAgentPerformanceRow {
   connectedManualDials: string;
   // Transfers Received metrics — same column-group pattern as the groups above; column names as
   // given in the validation brief; not yet independently confirmed live (pending a live-agent
-  // pass), see tests/standard-report/agent-performance-report/transfers-received-check.spec.ts.
+  // pass), see tests/standard-report/agent-performance-report/specs/transfers-received-check.spec.ts.
   transfersReceived: string;
   transferRingTime: string;
   transferTalkTime: string;
@@ -317,7 +317,7 @@ export interface CallRecord {
   holdTime: string;
   totalDuration: string;
   // Customer identity — used only for the Transfers Received "record trace" output on mismatch
-  // (see tests/standard-report/agent-performance-report/transfers-received-check.spec.ts), not for
+  // (see tests/standard-report/agent-performance-report/specs/transfers-received-check.spec.ts), not for
   // filtering/matching.
   customerName: string;
   customerNumber: string;

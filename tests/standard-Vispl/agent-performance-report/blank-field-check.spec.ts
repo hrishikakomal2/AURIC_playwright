@@ -25,7 +25,7 @@ function validateNotBlank(recorder: AprReportRecorder, ctx: ValidationContext, r
 
 /**
  * New Application — SME ID / Agent Name / Agent ID validation. Same validation concept as the
- * existing suite's tests/standard-report/agent-performance-report/blank-field-check.spec.ts, but
+ * existing suite's tests/standard-report/agent-performance-report/specs/blank-field-check.spec.ts, but
  * running entirely against this environment's own config/Page Objects — see
  * apr-new-app/README.md "Isolation from the existing suite".
  */

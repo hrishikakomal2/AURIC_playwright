@@ -1,9 +1,9 @@
-import { test, expect } from '../../../apr/fixtures';
-import { loginAsAdmin } from '../../../apr/lib/session';
-import { StandardReportsAgentPerformancePage } from '../../../apr/pages/StandardReportsAgentPerformancePage';
-import { CallsPage } from '../../../apr/pages/CallsPage';
-import { durationToSeconds, secondsToHms, compareDurations, compareCounts, parseCallTimestamp, textsMatch } from '../../../apr/lib/normalize';
-import { HourlyAgentPerformanceRow } from '../../../apr/lib/types';
+import { test, expect } from '../../../../apr/fixtures';
+import { loginAsAdmin } from '../../../../apr/lib/session';
+import { StandardReportsAgentPerformancePage } from '../../../../apr/pages/StandardReportsAgentPerformancePage';
+import { CallsPage } from '../../../../apr/pages/CallsPage';
+import { durationToSeconds, secondsToHms, compareDurations, compareCounts, parseCallTimestamp, textsMatch } from '../../../../apr/lib/normalize';
+import { HourlyAgentPerformanceRow } from '../../../../apr/lib/types';
 
 /**
  * Inbound metrics validation: cross-checks Standard Reports > Agent Performance's Inbound

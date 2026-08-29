@@ -1,5 +1,5 @@
-import { test, expect } from './fixtures';
-import { durationToSeconds, secondsToHms, compareDurations } from '../../../../apr/lib/normalize';
+import { test, expect } from '../fixtures';
+import { durationToSeconds, secondsToHms, compareDurations } from '../../../../../apr/lib/normalize';
 
 /**
  * Total Talk Time validation: sums every hourly "Total Talk Time" value for one agent from

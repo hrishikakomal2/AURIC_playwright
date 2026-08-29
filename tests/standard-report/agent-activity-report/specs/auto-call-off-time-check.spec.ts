@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { loginAsAdmin } from '../../../apr/lib/session';
-import { ActivityLogsPage } from '../../../apr/pages/ActivityLogsPage';
-import { ActivityLogRow } from '../../../apr/lib/types';
-import { textsMatch, compareDurations, secondsToHms, activityLogTimestampToMs } from '../../../apr/lib/normalize';
-import { loadAgentActivityConfig } from './config';
-import { AgentActivityPage } from './AgentActivityPage';
+import { loginAsAdmin } from '../../../../apr/lib/session';
+import { ActivityLogsPage } from '../../../../apr/pages/ActivityLogsPage';
+import { ActivityLogRow } from '../../../../apr/lib/types';
+import { textsMatch, compareDurations, secondsToHms, activityLogTimestampToMs } from '../../../../apr/lib/normalize';
+import { loadAgentActivityConfig } from '../config';
+import { AgentActivityPage } from '../AgentActivityPage';
 
 /**
  * Auto Call Off Time check: for every agent/date shown on Reports > Standard Reports > "Agent

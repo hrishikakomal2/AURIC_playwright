@@ -1,23 +1,22 @@
-import { test, expect } from './fixtures';
-import { durationToSeconds, secondsToHms, compareDurations } from '../../../../apr/lib/normalize';
+import { test, expect } from '../fixtures';
+import { durationToSeconds, secondsToHms, compareDurations } from '../../../../../apr/lib/normalize';
 
 /**
- * Total Break Duration validation: sums every hourly "Total Break Duration" value for one agent
+ * Total Active Duration validation: sums every hourly "Total Active Duration" value for one agent
  * from Reports > Standard Reports > Agent Performance (the app's real hourly-granularity report —
  * see apr/pages/StandardReportsAgentPerformancePage.ts) across the configured date range, then
- * cross-checks that cumulative total against the aggregated "Break Time" for the same agent/range
- * on Insights > APR (apr/pages/InsightsAprPage.ts) — confirmed live as the rightmost column of
- * that table.
+ * cross-checks that cumulative total against the aggregated "Active Time" for the same agent/range
+ * on Insights > APR (apr/pages/InsightsAprPage.ts).
  *
  * The Standard Report / Insights row sets are fetched once (login + filter applied a single time)
  * by the worker-scoped `durationData` fixture in ./fixtures.ts and shared across every file in
  * this directory — see that file for why.
  *
- * PASS when SUM(hourly Total Break Duration) == Insights Break Time (within the same 5s
+ * PASS when SUM(hourly Total Active Duration) == Insights Active Time (within the same 5s
  * tolerance every other duration comparison in this suite uses, see apr/lib/normalize.ts).
  */
-test.describe('APR — Total Break Duration validation', () => {
-  test('cumulative hourly Total Break Duration matches Insights APR Break Time', async ({ durationData, aprReport }) => {
+test.describe('APR — Total Active Duration validation', () => {
+  test('cumulative hourly Total Active Duration matches Insights APR Active Time', async ({ durationData, aprReport }) => {
     test.setTimeout(300_000); // covers the shared fixture's one-time login+fetch if this is the first test to run
 
     const { agentName, startDate, endDate, matchingHourlyRows, insightsRow } = durationData;
@@ -25,33 +24,33 @@ test.describe('APR — Total Break Duration validation', () => {
     let cumulativeSeconds = 0;
     const hourlyBreakdown: string[] = [];
     for (const row of matchingHourlyRows) {
-      const seconds = durationToSeconds(row.totalBreakDuration) ?? 0;
+      const seconds = durationToSeconds(row.totalActiveDuration) ?? 0;
       cumulativeSeconds += seconds;
-      hourlyBreakdown.push(`  ${row.date} ${row.hour}: ${row.totalBreakDuration || '00:00:00'}`);
+      hourlyBreakdown.push(`  ${row.date} ${row.hour}: ${row.totalActiveDuration || '00:00:00'}`);
     }
     const cumulativeHms = secondsToHms(cumulativeSeconds);
 
-    const insightsBreakTime = insightsRow?.breakTime ?? '(not found)';
+    const insightsActiveTime = insightsRow?.activeTime ?? '(not found)';
 
-    const cmp = compareDurations(cumulativeHms, insightsBreakTime);
+    const cmp = compareDurations(cumulativeHms, insightsActiveTime);
 
     const reportLines = [
       `Agent Name: ${agentName}`,
       `APR Start Date: ${startDate}`,
       `APR End Date: ${endDate}`,
       '',
-      'Hourly Total Break Duration:',
+      'Hourly Total Active Duration:',
       ...(hourlyBreakdown.length ? hourlyBreakdown : ['  (no hourly rows returned for this agent/date range)']),
       '',
-      `Calculated Total Break Duration = ${cumulativeHms}`,
-      `APR Insights Break Time          = ${insightsBreakTime}`,
-      `Difference                       = ${cmp.diffSeconds === null ? 'N/A' : `${cmp.diffSeconds}s`}`,
+      `Calculated Total Active Duration = ${cumulativeHms}`,
+      `APR Insights Active Time          = ${insightsActiveTime}`,
+      `Difference                        = ${cmp.diffSeconds === null ? 'N/A' : `${cmp.diffSeconds}s`}`,
       '',
       `Result: ${cmp.matches ? 'PASS' : 'FAIL'}`,
     ];
     const reportText = reportLines.join('\n');
     console.log(reportText);
-    await test.info().attach('total-break-duration-report', { body: reportText, contentType: 'text/plain' });
+    await test.info().attach('total-active-duration-report', { body: reportText, contentType: 'text/plain' });
 
     aprReport.compareField({
       agentName,
@@ -59,14 +58,14 @@ test.describe('APR — Total Break Duration validation', () => {
       date: startDate === endDate ? startDate : `${startDate} to ${endDate}`,
       hour: '00:00-23:59',
       campaign: 'ALL',
-      field: 'Total Break Duration',
+      field: 'Total Active Duration',
       aprValue: cumulativeHms,
-      referenceValue: insightsBreakTime,
-      source: 'Insights > APR (Break Time) vs. Standard Reports > Agent Performance (hourly sum)',
+      referenceValue: insightsActiveTime,
+      source: 'Insights > APR (Active Time) vs. Standard Reports > Agent Performance (hourly sum)',
       matches: cmp.matches,
       reason: cmp.matches
         ? undefined
-        : `Cumulative hourly Total Break Duration "${cumulativeHms}" does not match Insights APR Break Time "${insightsBreakTime}" (diff ${cmp.diffSeconds ?? 'N/A'}s)`,
+        : `Cumulative hourly Total Active Duration "${cumulativeHms}" does not match Insights APR Active Time "${insightsActiveTime}" (diff ${cmp.diffSeconds ?? 'N/A'}s)`,
     });
 
     expect(cmp.matches, reportText).toBe(true);
