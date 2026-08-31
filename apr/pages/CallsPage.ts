@@ -123,12 +123,56 @@ export class CallsPage {
     await this.selectComboByLabel('Campaign Name', campaignName);
   }
 
+  /**
+   * Selects the "Campaign Queue" filter — confirmed live as the field that holds Queue Name
+   * values (e.g. "new queue", matching Standard Reports > Agent Efficiency/Hourly Call Summary's
+   * "Queue Name"/"Queue" columns), despite its label. Not to be confused with "Call Flow" (a
+   * separate field holding IVR flow names like "Incoming"/"LONG CALL FLOW", NOT a direction) —
+   * see selectCallType for the field that actually holds Incoming/Outgoing direction values.
+   *
+   * Unlike selectComboByLabel, this types `queueName` into the search box before picking the
+   * option — confirmed live: this dropdown's default (untyped) option list shows unrelated
+   * campaign-like entries, not the target queue, so the option is only reachable by typing to
+   * filter the list first.
+   */
+  private async selectCampaignQueue(queueName: string) {
+    const combo = this.filterDialog.locator('text=Campaign Queue').locator('xpath=following::*[1]');
+    await combo.click();
+    await this.page.keyboard.type(queueName);
+    await this.page.waitForTimeout(500);
+
+    const dropdown = this.page.locator('.ant-select-dropdown:not(.ant-select-dropdown-hidden)').last();
+    await dropdown.waitFor({ state: 'visible', timeout: 10000 });
+
+    const option = dropdown.locator('.ant-select-item-option', { hasText: queueName }).first();
+    await expect(option, `"${queueName}" was not found in the Calls page's "Campaign Queue" filter`).toBeVisible({ timeout: 10000 });
+    await option.click();
+    await this.page.keyboard.press('Escape');
+    await this.page.waitForTimeout(300);
+  }
+
   private async selectCampaignType(campaignType: string) {
     await this.selectComboByLabel('Campaign Type', campaignType);
   }
 
+  /**
+   * Selects the Call Type filter by its combobox `name="callType"` attribute instead of the
+   * generic text-based selectComboByLabel — confirmed live (via a failing run): a plain
+   * `text=Call Type` locator matches 2 elements (the ant-select wrapper div and its inner
+   * `<input>`), causing a Playwright strict-mode violation. Same fix as selectAgent's
+   * `name="agentId"` disambiguation.
+   */
   private async selectCallType(callType: string) {
-    await this.selectComboByLabel('Call Type', callType);
+    const combo = this.filterDialog.locator('[name="callType"]');
+    await combo.click();
+    const dropdown = this.page.locator('.ant-select-dropdown:not(.ant-select-dropdown-hidden)').last();
+    await dropdown.waitFor({ state: 'visible', timeout: 10000 });
+
+    const option = dropdown.locator('.ant-select-item-option', { hasText: callType }).first();
+    await expect(option, `"${callType}" was not found in the Calls page's "Call Type" filter`).toBeVisible({ timeout: 10000 });
+    await option.click();
+    await this.page.keyboard.press('Escape');
+    await this.page.waitForTimeout(300);
   }
 
   private async applyFilters() {
@@ -138,30 +182,38 @@ export class CallsPage {
   }
 
   /**
-   * Filters the call log to `agentName` (+ optional `callType` / `campaignName` / `campaignType`)
-   * across `startDate`..`endDate`, then returns every row across pagination. The Calls page has
-   * no Hour filter (confirmed live via screenshot — the Filter Calls modal only offers a date
-   * range), so hour-of-day filtering is done client-side by the caller against
+   * Filters the call log to `agentName` (+ optional `callType` / `campaignName` / `campaignType` /
+   * `queueName`) across `startDate`..`endDate`, then returns every row across pagination. The
+   * Calls page has no Hour filter (confirmed live via screenshot — the Filter Calls modal only
+   * offers a date range), so hour-of-day filtering is done client-side by the caller against
    * CallRecord.timestamp (see apr/lib/normalize.ts parseCallTimestamp).
    *
-   * `callType`/`campaignName`/`campaignType` are all optional and left unset entirely when not
-   * passed — per the Inbound validation brief, never substitute/invent a value for an omitted
-   * filter.
+   * `agentName` is optional — omit it for a validation scoped by campaign/queue/direction only
+   * (e.g. Hourly Call Summary's Total Offered Calls, which isn't agent-scoped at all — see
+   * tests/standard-report/hourly-call-summary-report/specs/total-offered-calls-check.spec.ts).
+   * `callType`/`campaignName`/`campaignType`/`queueName` are all optional and left unset entirely
+   * when not passed — per the Inbound validation brief, never substitute/invent a value for an
+   * omitted filter.
    *
-   * NOTE (observed live, one run): the Agent Name / Campaign Name comboboxes in this modal were
-   * occasionally unreliable — typing left stray unrelated options visible and the popup
-   * mis-positioned itself. If selectComboByLabel proves flaky in a live run, the page also has a
-   * live-search box directly above the results table (search-as-you-type, not part of the Filter
-   * modal) that a prior live-agent pass used successfully as a fallback for Agent Name/Campaign
-   * Name — not yet wired up here since its exact selector wasn't captured.
+   * NOTE (observed live, one run): the Agent Name / Campaign Name / Campaign Queue comboboxes in
+   * this modal were occasionally unreliable — typing left stray unrelated options visible and the
+   * popup mis-positioned itself, and a selection made right after another field's selection could
+   * silently fail to register (observed live: selecting Call Type then immediately Campaign Queue
+   * without confirming the first selection actually stuck). Always confirm a selection landed
+   * (e.g. re-read the field) before moving to the next one if adding new callers here. If
+   * selectComboByLabel proves flaky in a live run, the page also has a live-search box directly
+   * above the results table (search-as-you-type, not part of the Filter modal) that a prior
+   * live-agent pass used successfully as a fallback for Agent Name/Campaign Name — not yet wired
+   * up here since its exact selector wasn't captured.
    */
   async getRowsForFilters(opts: {
-    agentName: string;
+    agentName?: string;
     startDate: string;
     endDate: string;
     callType?: string;
     campaignName?: string;
     campaignType?: string;
+    queueName?: string;
   }): Promise<CallRecord[]> {
     await this.goto();
     await this.openFilters();
@@ -174,10 +226,11 @@ export class CallsPage {
     // UI-level query is safe.
     const rangeEnd = opts.startDate === opts.endDate ? addDays(opts.endDate, 1) : opts.endDate;
     await this.setDateRange(opts.startDate, rangeEnd);
-    await this.selectAgent(opts.agentName);
+    if (opts.agentName) await this.selectAgent(opts.agentName);
     if (opts.callType) await this.selectCallType(opts.callType);
     if (opts.campaignName) await this.selectCampaignName(opts.campaignName);
     if (opts.campaignType) await this.selectCampaignType(opts.campaignType);
+    if (opts.queueName) await this.selectCampaignQueue(opts.queueName);
     await this.applyFilters();
 
     const rows = await readAntTableAllPages(this.page.locator('main'));

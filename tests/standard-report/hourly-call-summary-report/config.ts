@@ -14,6 +14,12 @@ export interface HourlyCallSummaryConfig {
   adminPassword: string;
   startDate: string; // YYYY-MM-DD — defaults to today if START_DATE is blank/unset
   endDate: string; // YYYY-MM-DD — defaults to today if END_DATE is blank/unset
+  // Used by specs/total-offered-calls-check.spec.ts to select the one Hourly Call Summary row to
+  // validate and to build the matching Calls page filter — see ./.env for the field pairing.
+  reportHour: string; // e.g. "16-17"
+  campaignName: string;
+  queueName: string;
+  callDirection: string; // e.g. "OUTGOING" (Hourly Call Summary's spelling) / "Outgoing" (Calls page's Call Type spelling)
 }
 
 function required(name: string, fallback?: string): string {
@@ -54,5 +60,9 @@ export function loadHourlyCallSummaryConfig(): HourlyCallSummaryConfig {
     // Blank/unset ⇒ today, matching the root .env's APR_START_DATE/APR_END_DATE convention.
     startDate: startDateRaw ? assertIsoDate(startDateRaw, 'START_DATE') : todayIso(),
     endDate: endDateRaw ? assertIsoDate(endDateRaw, 'END_DATE') : todayIso(),
+    reportHour: required('REPORT_HOUR'),
+    campaignName: required('CAMPAIGN_NAME'),
+    queueName: required('QUEUE_NAME'),
+    callDirection: required('CALL_DIRECTION'),
   };
 }

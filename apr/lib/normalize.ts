@@ -97,6 +97,18 @@ export function comparePercent(aprRaw: string | null | undefined, referenceRaw: 
   return { matches: Math.abs(diff) <= tolerancePoints, aprPercent, referencePercent, diff };
 }
 
+/**
+ * Parses an Hourly Call Summary "Report Hour" bucket (e.g. "16-17") into its starting hour
+ * (16) — the hour-of-day a call's Start Date Time must fall in to belong to that bucket. Null if
+ * unparseable.
+ */
+export function parseReportHourStart(reportHour: string | null | undefined): number | null {
+  const s = normalizeText(reportHour);
+  const match = /^(\d{1,2})-(\d{1,2})$/.exec(s);
+  if (!match) return null;
+  return Number(match[1]);
+}
+
 export interface DurationCompareResult {
   matches: boolean;
   aprSeconds: number | null;
