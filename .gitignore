@@ -5,3 +5,4 @@ apr-reports/
 apr-new-app-reports/
 .env
 .env.vispl
+.claude/settings.local.json
