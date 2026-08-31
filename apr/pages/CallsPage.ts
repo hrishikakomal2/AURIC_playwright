@@ -27,6 +27,19 @@ export class CallsPage {
     await this.page.locator('table').first().waitFor({ state: 'visible', timeout: 15000 });
   }
 
+  /**
+   * Every call row shown with NO filters applied at all — the Filter Calls dialog is never opened,
+   * so whatever the page defaults to (its own default date range/scope) is read as-is, across
+   * pagination. Used by tests/pages/cdr-check (per-row field rules that must hold regardless of
+   * date/agent/campaign scope), as opposed to getRowsForFilters below which every other caller in
+   * this suite uses to scope down to a specific comparison.
+   */
+  async getAllRows(): Promise<CallRecord[]> {
+    await this.goto();
+    const rows = await readAntTableAllPages(this.page.locator('main'));
+    return rows.map(mapCallRow);
+  }
+
   private get filterDialog(): Locator {
     return this.page.locator('.ant-modal, [role="dialog"]').filter({ hasText: 'Filter Calls' }).last();
   }
