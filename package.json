@@ -1,0 +1,21 @@
+{
+  "name": "auric-playwright-tests",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:apr": "playwright test tests/standard-report/agent-performance-report",
+    "test:apr:headed": "playwright test tests/standard-report/agent-performance-report --headed",
+    "test:apr-new-app": "playwright test tests/standard-Vispl/agent-performance-report",
+    "test:apr-new-app:headed": "playwright test tests/standard-Vispl/agent-performance-report --headed",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "@types/node": "^26.1.1",
+    "dotenv": "^16.4.5",
+    "exceljs": "^4.4.0"
+  }
+}

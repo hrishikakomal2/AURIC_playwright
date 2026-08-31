@@ -1,0 +1,7 @@
+node_modules/
+test-results/
+playwright-report/
+apr-reports/
+apr-new-app-reports/
+.env
+.env.vispl
