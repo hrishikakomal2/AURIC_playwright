@@ -3,7 +3,7 @@ test-results/
 playwright-report/
 apr-reports/
 apr-new-app-reports/
-tests/pages/cdr-check/result.xlsx
+tests/admin/cdr-check/result.xlsx
 .env
 .env.vispl
 .claude/settings.local.json

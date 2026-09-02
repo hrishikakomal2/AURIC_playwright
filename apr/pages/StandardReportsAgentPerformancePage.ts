@@ -113,6 +113,13 @@ export class StandardReportsAgentPerformancePage {
    * opens its combobox, and clicks the option matching `value`. Fails clearly if the option isn't
    * offered — same FILTER ERROR convention as LiveDashboardAprPage.filterByCampaign.
    *
+   * These comboboxes render their option list as a virtualized (rc-virtual-list) dropdown — only
+   * options near the current scroll position actually exist in the DOM, so an option far down the
+   * list (e.g. "18:00" in a 24-entry Hour list, or an agent alphabetically far from the top) isn't
+   * findable by just scanning what's currently rendered. Confirmed live: these combos are
+   * search-as-you-type — typing into the combo's own input filters the option list down to
+   * matches, which sidesteps the virtualization entirely instead of scrolling to find the option.
+   *
    * NOTE: the exact field labels/controls for Hour, Campaign Name, and Campaign Type in this
    * dialog have not been confirmed live (unlike Agent Name / Date range above) — this is written
    * against the same combobox pattern Agent Name uses, on the assumption every field in this
@@ -122,6 +129,7 @@ export class StandardReportsAgentPerformancePage {
   private async selectComboByLabel(label: string, value: string) {
     const combo = this.filterDialog.locator(`text=${label}`).locator('xpath=following::*[1]');
     await combo.click();
+    await combo.pressSequentially(value);
     const dropdown = this.page.locator('.ant-select-dropdown:not(.ant-select-dropdown-hidden)').last();
     await dropdown.waitFor({ state: 'visible', timeout: 10000 });
 
@@ -158,6 +166,7 @@ export class StandardReportsAgentPerformancePage {
   private async selectComboByAttr(name: string, value: string, label: string) {
     const combo = this.filterDialog.locator(`[name="${name}"]`);
     await combo.click();
+    await combo.pressSequentially(value);
     const dropdown = this.page.locator('.ant-select-dropdown:not(.ant-select-dropdown-hidden)').last();
     await dropdown.waitFor({ state: 'visible', timeout: 10000 });
 

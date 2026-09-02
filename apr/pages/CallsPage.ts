@@ -30,7 +30,7 @@ export class CallsPage {
   /**
    * Every call row shown with NO filters applied at all — the Filter Calls dialog is never opened,
    * so whatever the page defaults to (its own default date range/scope) is read as-is, across
-   * pagination. Used by tests/pages/cdr-check (per-row field rules that must hold regardless of
+   * pagination. Used by tests/admin/cdr-check (per-row field rules that must hold regardless of
    * date/agent/campaign scope), as opposed to getRowsForFilters below which every other caller in
    * this suite uses to scope down to a specific comparison.
    */
@@ -74,15 +74,20 @@ export class CallsPage {
   /**
    * Clicks the calendar day cell for `isoDate` in the currently-open antd RangePicker popup
    * (shared by setDateRange's start/end clicks — the picker shows two month panels side by side
-   * and auto-advances which panel is "current" as you make selections). Advances the popup via
-   * its "next month" button until the target month/year panel is visible, then clicks the day.
+   * and auto-advances which panel is "current" as you make selections). Advances/retreats the
+   * popup via its "next"/"previous" month button until the target month/year panel is visible,
+   * then clicks the day. Direction matters: the picker opens on the current month, so a target
+   * month in the past (e.g. this suite's START_DATE/END_DATE) requires going backward via
+   * "previous month", not forward — going the wrong direction runs into the disabled end-of-range
+   * button and spins until timeout (confirmed live).
    */
   private async clickCalendarDay(isoDate: string) {
     const [y, m, d] = isoDate.split('-').map(Number);
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const targetLabel = `${monthNames[m - 1]}${y}`;
+    const targetIndex = y * 12 + (m - 1);
 
-    for (let attempt = 0; attempt < 24; attempt++) {
+    for (let attempt = 0; attempt < 36; attempt++) {
       const panel = this.page
         .locator('.ant-picker-panel')
         .filter({ has: this.page.locator('.ant-picker-header-view', { hasText: targetLabel }) })
@@ -92,7 +97,17 @@ export class CallsPage {
         await cell.click();
         return;
       }
-      await this.page.locator('.ant-picker-header-next-btn').last().click();
+
+      const headerText = (await this.page.locator('.ant-picker-header-view').first().innerText()).trim();
+      const headerMatch = headerText.match(/^([A-Za-z]+)(\d{4})$/);
+      if (!headerMatch) throw new Error(`Could not parse calendar header "${headerText}" while selecting ${isoDate}`);
+      const curMonthIdx = monthNames.indexOf(headerMatch[1].slice(0, 3));
+      const curIndex = Number(headerMatch[2]) * 12 + curMonthIdx;
+
+      const navBtn = targetIndex < curIndex
+        ? this.page.locator('.ant-picker-header-prev-btn').first()
+        : this.page.locator('.ant-picker-header-next-btn').last();
+      await navBtn.click();
       await this.page.waitForTimeout(150);
     }
     throw new Error(`Could not find calendar month "${targetLabel}" while selecting ${isoDate} in the Calls page date range picker`);
@@ -164,8 +179,24 @@ export class CallsPage {
     await this.page.waitForTimeout(300);
   }
 
+  /**
+   * Selects the Campaign Type filter by its combobox `name="campaignType"` attribute instead of
+   * the generic text-based selectComboByLabel — confirmed live (via a failing run): a plain
+   * `text=Campaign Type` locator matches 2 elements (the ant-select wrapper div, which itself
+   * carries `name="campaignType"`, and its inner `<input>`), causing a Playwright strict-mode
+   * violation. Same fix as selectAgent's `name="agentId"` disambiguation.
+   */
   private async selectCampaignType(campaignType: string) {
-    await this.selectComboByLabel('Campaign Type', campaignType);
+    const combo = this.filterDialog.locator('[name="campaignType"]');
+    await combo.click();
+    const dropdown = this.page.locator('.ant-select-dropdown:not(.ant-select-dropdown-hidden)').last();
+    await dropdown.waitFor({ state: 'visible', timeout: 10000 });
+
+    const option = dropdown.locator('.ant-select-item-option', { hasText: campaignType }).first();
+    await expect(option, `"${campaignType}" was not found in the Calls page's "Campaign Type" filter`).toBeVisible({ timeout: 10000 });
+    await option.click();
+    await this.page.keyboard.press('Escape');
+    await this.page.waitForTimeout(300);
   }
 
   /**
