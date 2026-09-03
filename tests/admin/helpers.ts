@@ -154,11 +154,20 @@ export async function gotoCreateQueue(page: Page) {
   await expect(page.locator('input[name="queue_name"]')).toBeVisible();
 }
 
-/** Opens the multi-select "Select agents" dropdown and checks each named agent. */
+/**
+ * Opens the multi-select "Select agents" dropdown and checks each named agent.
+ * Matches option text exactly (not antd's option `hasText`, which is a case-insensitive
+ * substring match — 'komal' would also match a row named 'Hrishika Komal 1', re-clicking and
+ * deselecting it instead of picking the distinct 'komal' agent). Also avoids role=option — like
+ * selectCampaignDids, this list's virtual-scroll duplicates items into an off-screen a11y node
+ * with a zero-size box, which getByRole('option') can resolve to instead of the real, visible,
+ * clickable one.
+ */
 export async function selectQueueAgents(page: Page, names: string[]) {
   await page.locator('div[name="selected_agents"]').click();
+  const dropdown = page.locator('.ant-select-dropdown:not(.ant-select-dropdown-hidden)');
   for (const name of names) {
-    await page.getByRole('option', { name, exact: true }).click();
+    await dropdown.locator('.ant-select-item-option').getByText(name, { exact: true }).click();
   }
   await page.keyboard.press('Escape');
 }
