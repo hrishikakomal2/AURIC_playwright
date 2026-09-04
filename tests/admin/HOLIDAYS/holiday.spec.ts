@@ -22,14 +22,18 @@ test.describe('Holidays Settings (Availability > Holidays)', () => {
     await gotoHolidays(page);
   });
 
-  test('Negative: Save is blocked when Holiday name, date, and media are all empty', async ({ page }) => {
+  test('Negative: "Please select a date" feedback is silently dropped when other required fields are also empty [BUG]', async ({ page }) => {
+    // Expected: Select date is just as required as Holiday name and Select Media, so leaving all
+    // three empty should surface feedback for all three when Save is blocked.
+    // Live-verified actual behavior: only Holiday name and Select Media get an inline error here —
+    // Select date gets no feedback at all in this combined-error case, even though the dedicated
+    // date-only test below confirms it does show a toast when it's the sole invalid field. A user
+    // who fixes name and media but not date sees no indication date is still required.
     await clickHolidaySave(page);
 
-    // Live-verified: when all three required fields are empty at once, only Holiday name and
-    // Select Media get an inline error here — Select date gets no feedback at all in this
-    // combined-error case (see the dedicated date-only test below for when it does show one).
     await expect(page.getByText('Required')).toBeVisible();
     await expect(page.getByText('Please select a media file')).toBeVisible();
+    await expect(page.getByText('Please select a date')).not.toBeVisible();
   });
 
   test('Negative: leaving only the date empty shows a "Please select a date" toast', async ({ page }) => {
