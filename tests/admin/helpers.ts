@@ -1,4 +1,4 @@
-import { Page, BrowserContext, expect } from '@playwright/test';
+import { Page, Locator, BrowserContext, expect } from '@playwright/test';
 
 export async function login(page: Page) {
   await page.goto('/');
@@ -42,6 +42,10 @@ export function uniqueContact(): string {
 
 export function uniqueEmail(prefix = 'qa.auto'): string {
   return `${prefix}.${uniqueSuffix()}@example.com`;
+}
+
+export function uniqueHolidayName(prefix = 'QA Holiday'): string {
+  return `${prefix} ${uniqueSuffix()}`;
 }
 
 export async function fillMandatory(
@@ -701,4 +705,112 @@ export async function completeAgentSsoLogin(
 export async function expectAgentDashboard(agentTab: Page, agentName: string) {
   await expect(agentTab).toHaveURL(/\/agent\/dashboard/, { timeout: 15000 });
   await expect(agentTab.getByText(agentName, { exact: true })).toBeVisible({ timeout: 15000 });
+}
+
+// ---------------- Working Hours (Availability > Working hours) ----------------
+
+/**
+ * Sets an antd TimePicker input's value via its dropdown panel (hour cell, minute cell, then OK)
+ * rather than typing into the text input directly — typing digits after selecting the existing
+ * text was confirmed live to sometimes produce a corrupted/merged value (e.g. digits from the old
+ * and new value combining into an unrelated time) instead of cleanly replacing it. The panel's
+ * click-driven selection is deterministic and matches how a real user would pick a time.
+ *
+ * The start/end fields share one underlying range-picker's "which field is active" state, which
+ * only catches up with the DOM a moment after the dropdown opens/closes — calling this twice back
+ * to back with no settling time (e.g. immediately after a Save re-render) was confirmed live to
+ * silently write the new value into the *other* field instead of the one just clicked. The waits
+ * below give that internal state time to settle before/after each panel interaction.
+ *
+ * Each cell is clicked via `.evaluate(el => el.click())` rather than Playwright's pointer-based
+ * `.click()` — the panel auto-scrolls the selected hour into view the instant it's picked, and
+ * that scroll animation was confirmed live to race a real pointer click into landing on whatever
+ * cell ends up under those screen coordinates once the list finishes moving (e.g. asking for
+ * minute "30" but landing on "33"). Dispatching the click directly on the element handle sidesteps
+ * screen coordinates and scroll position entirely.
+ */
+export async function setTimePickerValue(page: Page, input: Locator, hh: string, mm: string) {
+  await input.click();
+  const dropdown = page.locator('.ant-picker-dropdown:not(.ant-picker-dropdown-hidden)');
+  await dropdown.waitFor({ state: 'visible' });
+  await page.waitForTimeout(200);
+  const columns = dropdown.locator('.ant-picker-time-panel-column');
+  await columns.nth(0).locator('.ant-picker-time-panel-cell-inner', { hasText: hh }).evaluate((el) => (el as HTMLElement).click());
+  await page.waitForTimeout(200);
+  await columns.nth(1).locator('.ant-picker-time-panel-cell-inner', { hasText: mm }).evaluate((el) => (el as HTMLElement).click());
+  await expect(input).toHaveValue(`${hh}:${mm}`);
+  await dropdown.getByRole('button', { name: 'OK', exact: true }).click();
+  await dropdown.waitFor({ state: 'hidden' }).catch(() => {});
+  await page.waitForTimeout(300);
+}
+
+/**
+ * Toggle switch located by its label text within its `.nw-toggle-card` row. Shared markup between
+ * Working Hours and Closed Days' "Call settings" section (Redirect to voicemail / AI Agent / Early
+ * media announcement), so this works on either page.
+ */
+export function nonWorkingHoursToggleByLabel(page: Page, label: string) {
+  return page.locator('.nw-toggle-card', { hasText: label }).locator('button.ant-switch');
+}
+
+// ---------------- Closed Days (Availability > Closed Days) ----------------
+
+/**
+ * A day-of-week checkbox on the Closed Days page, located by its label (e.g. "MONDAY"). This is a
+ * custom `.nw-day-checkbox` div, not a real `<input type="checkbox">`, so checked state is read via
+ * its `is-checked` class rather than `:checked`/`toBeChecked()`.
+ */
+export function nonWorkingDayCheckbox(page: Page, day: string) {
+  return page.locator('.nw-day-item', { hasText: day }).locator('.nw-day-checkbox');
+}
+
+// ---------------- Holidays (Availability > Holidays) ----------------
+
+export async function gotoHolidays(page: Page) {
+  await page.goto('/client/ivr/holiday');
+  await expect(page.getByRole('heading', { name: 'Set your holidays' })).toBeVisible();
+}
+
+/**
+ * Fills the holiday form's three required fields. `date` must be in YYYY-MM-DD format — typed
+ * directly into the date input rather than picked from the calendar, since the calendar's
+ * auto-scroll/re-render was confirmed live to make a coordinate-based cell click land on the
+ * wrong day (e.g. one row off from the intended date).
+ */
+export async function fillHolidayForm(page: Page, opts: { name: string; date: string; media: string }) {
+  await page.locator('input[name="name"]').fill(opts.name);
+  const dateInput = page.locator('input[name="holidayDate"]');
+  await dateInput.fill(opts.date);
+  await dateInput.press('Enter');
+  await page.locator('div[name="media"]').click();
+  await page.keyboard.type(opts.media);
+  await page.keyboard.press('Enter');
+}
+
+export async function clickHolidaySave(page: Page) {
+  await page.getByRole('button', { name: 'Save', exact: true }).click();
+}
+
+export async function expectHolidaySaved(page: Page) {
+  await expect(page.getByText('Holiday saved')).toBeVisible({ timeout: 15000 });
+}
+
+export async function searchHolidays(page: Page, query: string) {
+  await page.locator('input[placeholder="By Holiday name....."]').fill(query);
+  await page.waitForTimeout(600); // debounce
+}
+
+/** Deletes a holiday from the list by its exact name. No-ops if not found. */
+export async function deleteHolidayByName(page: Page, name: string) {
+  await gotoHolidays(page);
+  await searchHolidays(page, name);
+  const row = page.locator('tr', { hasText: name });
+  try {
+    await expect(row).toBeVisible({ timeout: 10000 });
+  } catch {
+    return;
+  }
+  await row.locator('.hp-action-btn--delete').click();
+  await page.getByRole('button', { name: 'Yes', exact: true }).click();
+  await expect(row).toHaveCount(0);
 }
